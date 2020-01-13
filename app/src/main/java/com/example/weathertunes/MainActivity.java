@@ -24,5 +24,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        requestPermission();
+
+        //Create Location Services Client
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            TextView txtLong = findViewById(R.id.longTxt);
+                            TextView txtLat = findViewById(R.id.latTxt);
+                            txtLong.append(Double.toString(location.getLongitude()));
+                            txtLat.append(Double.toString(location.getLatitude()));
+                        }
+                    }
+                });
     }
+
+    private void requestPermission(){
+        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION},1);
+    }
+
+
+
 }
