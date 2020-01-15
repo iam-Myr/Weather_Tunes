@@ -40,7 +40,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
         JSONObject weatherDescJson = articlesJson.getJSONObject(0);
         String mainWeather = weatherDescJson.getString("main");
 
-        String resultString = mainWeather;
+        String resultString = (city + " - " + mainWeather);
 
         return resultString;
     }
@@ -64,7 +64,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
             //MODIFIED FOR CITY OF THESSALONIKI, GREECE
-            final String baseUrl = "http://api.openweathermap.org/data/2.5/weather?";
+            final String baseUrl = "https://api.openweathermap.org/data/2.5/weather?";
             //"lat=35&lon=139";
             final String latitudeParam = "lat";
             final String longitudeParam = "lon";
@@ -89,7 +89,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
-                // Nothing to do.
+                Log.e("MYR", "Input was null");
                 return null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));

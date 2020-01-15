@@ -66,7 +66,7 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
             // Construct the URL for the Jamendo query
             // Possible parameters are avaiable at Jamendo's track API page, at
             // https://developer.jamendo.com/v3.0/tracks
-            final String baseUrl = "http://api.jamendo.com/v3.0/tracks/?";
+            final String baseUrl = "https://api.jamendo.com/v3.0/tracks/?";
             //"client_id=63258834&format=json&limit=1&fuzzytags=groove+rock";
             final String apiKeyParam = "client_id";
             final String formatParam = "format";

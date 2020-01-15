@@ -24,6 +24,38 @@ public class Track {
         this.audio_url = audio_url;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getArtist_id() {
+        return artist_id;
+    }
+
+    public String getArtist_name() {
+        return artist_name;
+    }
+
+    public String getAlbum_name() {
+        return album_name;
+    }
+
+    public int getAlbum_id() {
+        return album_id;
+    }
+
+    public String getAlbum_image() {
+        return album_image;
+    }
+
     public String getAudio_url() {
         return audio_url;
     }
