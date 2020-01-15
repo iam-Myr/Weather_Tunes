@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 
@@ -26,15 +28,18 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
 
 
-        //Maybe ger location without google
+        //Maybe get location without google with content provider
         Button songBtn = findViewById(R.id.songBtn);
         songBtn.setVisibility(View.GONE);
+        TextView weatherTxt = findViewById(R.id.weatherTxt);
 
-        FetchWeatherTask fetchWeather = new FetchWeatherTask(10.94688866, 21.76888663);
+        FetchWeatherTask fetchWeather = new FetchWeatherTask(35, 44);
         String weatherString = null;
 
         try {
             weatherString = fetchWeather.execute().get();
+            Log.d("MYR", "The weather is: " + weatherString);
+            weatherTxt.setText(weatherString);
 
         } catch (ExecutionException e) {
             e.printStackTrace();
