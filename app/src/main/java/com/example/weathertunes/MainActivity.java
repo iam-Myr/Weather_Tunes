@@ -3,11 +3,9 @@ package com.example.weathertunes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationManager;
@@ -17,7 +15,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Get activity items
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
-        Button songBtn = findViewById(R.id.songBtn);
+        final Button songBtn = findViewById(R.id.songBtn);
         Button favouritesBtn = findViewById(R.id.favouritesBtn);
         Button addToFavBtn = findViewById(R.id.addToFavBtn);
         songBtn.setVisibility(View.GONE);
@@ -54,17 +56,22 @@ public class MainActivity extends AppCompatActivity {
         addToFavBtn.setVisibility(View.GONE);
         TextView weatherTxt = findViewById(R.id.weatherTxt);
         final TextView playingTxt = findViewById(R.id.playingTxt);
+        final ImageView songImg = findViewById(R.id.songImg);
+
 
         Location location =  getLocation();
         double longitude;
         double latitude;
         if(location == null){
-            longitude = 22.0;
-            latitude = 40.2;
+            Log.d("MYR", "IM IN NULL?");
+            latitude = 39.3666; //33.74900;
+            longitude = 22.9507;//84.38798;
+            Toast.makeText(getApplicationContext(), "Couldn't find location! You are now in Atlanta", Toast.LENGTH_SHORT).show();
+
         }
         else {
            longitude = location.getLongitude();
-            latitude = location.getLatitude();
+           latitude = location.getLatitude();
         }
 
         FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude );
@@ -72,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             cityAndWeather = fetchWeather.execute().get();
+            if (cityAndWeather == null) cityAndWeather = "Atlanta - Clouds";
             Log.d("MYR", "The weather is: " + cityAndWeather);
             weatherTxt.setText(cityAndWeather);
 
@@ -114,28 +122,9 @@ public class MainActivity extends AppCompatActivity {
         songBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mediaPlayer.reset();
-
-                final String tag = generateTag(weather);
-
-
-                FetchTrackTask fetchTrack = new FetchTrackTask(tag);
-                try {
-                    track = fetchTrack.execute().get();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    mediaPlayer.setDataSource(track.getAudio_url());
-                    mediaPlayer.prepare();// might take long! (for buffering, etc)
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                mediaPlayer.start();
+                playTrack(mediaPlayer, weather);
                 playingTxt.setText("Now Playing: " + track.getName());
+                Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
             }
         });
 
@@ -174,10 +163,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Location getLocation() {
-        int hasReadContactPermission = ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION);
-        Log.d("MYR", "HAS Read Location Permissions " + hasReadContactPermission);
+        int hasReadLocationPermission = ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION);
+        Log.d("MYR", "HAS Read Location Permissions " + hasReadLocationPermission);
 
-        if (hasReadContactPermission == PackageManager.PERMISSION_GRANTED) {
+        if (hasReadLocationPermission == PackageManager.PERMISSION_GRANTED) {
             Log.d("MYR", "Permission Granted");
             ACCESS_FINE_LOCATION_GRANTED = true;
         } else {
@@ -187,14 +176,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (ACCESS_FINE_LOCATION_GRANTED) {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-                Log.e("ΜΥR", "Longitude: " + location.getLongitude());
-                Log.e("ΜΥR", "Latitude: " + location.getLatitude());
-            } else {
-                location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                return lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
-            return location;
+            else {
+                Toast.makeText(getApplicationContext(), "GPS must be enabled!", Toast.LENGTH_SHORT).show();
+            }
         }
         return null;
     }
@@ -222,6 +209,36 @@ public class MainActivity extends AppCompatActivity {
             // other 'case' lines to check for other
             // permissions this app might request.
         }
+    }
+
+    public void playTrack(MediaPlayer player, String weather){
+        player.reset();
+
+        String tag = generateTag(weather);
+
+        FetchTrackTask fetchTrack = new FetchTrackTask(tag);
+        try {
+            track = fetchTrack.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (track != null) {
+                player.setDataSource(track.getAudio_url());
+
+                player.prepare();// might take long! (for buffering, etc)
+                player.start();
+
+            }
+            else Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public String generateTag(String weather){

@@ -19,7 +19,6 @@ import java.util.Random;
 
 public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
-    ArrayList<Track> playlist;
     String fuzzytags;
 
     public FetchTrackTask(String fuzzytags) {
@@ -142,7 +141,7 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
     @Override
     protected void onPostExecute(Track track) {
-        Log.d("MYR", track.toString());
+        if (track != null) Log.d("MYR", track.toString());
     }
 
 }

@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class FavouritesActivity extends AppCompatActivity {
+public class FavouritesActivity extends AppCompatActivity implements FavouritesAdapter.AdapterCallback {
 
     SQLiteDatabase db = MainActivity.db;
     FavouritesAdapter favAdapter;
@@ -35,16 +35,6 @@ public class FavouritesActivity extends AppCompatActivity {
 
         getArrayFromDB(db);
 
-        /* DB delete code
-                if (favAdapter.getCount() != 0) {//list isn't empty
-                    View parentRow = (View) v.getParent();
-                    ListView listView = (ListView) parentRow.getParent();
-                    final int position = listView.getPositionForView(parentRow);
-                    Track track = (Track)favourites.get(position);
-                    String trackID = String.valueOf(track.getId());
-                    db.delete("Favourites", "id = ?", new String[] {trackID});
-               }
-            */
     }
 
     @Override
@@ -55,7 +45,7 @@ public class FavouritesActivity extends AppCompatActivity {
 
     public void loadDataFromDB(){
         ArrayList favourites = getArrayFromDB(this.db);
-        favAdapter = new FavouritesAdapter(this,favourites);
+        favAdapter = new FavouritesAdapter(this,favourites, this);
 
         ListView favList = findViewById(R.id.favsList);
         favList.setAdapter(favAdapter);
@@ -85,5 +75,20 @@ public class FavouritesActivity extends AppCompatActivity {
         cursor.close();
 
         return favourites;
+    }
+
+    @Override
+    public void onDelBtnClickCallback(View v, ArrayList favourites) {
+
+        View parentRow = (View) v.getParent();
+        if (favAdapter.getCount() != 0) {//list isn't empty
+            Log.d("MYR", "LIST ISNT EMPTY");
+            ListView listView = (ListView) parentRow.getParent();
+            final int position = listView.getPositionForView(parentRow);
+            Track track = (Track)favourites.get(position);
+            String trackID = String.valueOf(track.getId());
+            db.delete("Favourites", "id" + "=" + trackID, null);
+            loadDataFromDB();
+        }
     }
 }
