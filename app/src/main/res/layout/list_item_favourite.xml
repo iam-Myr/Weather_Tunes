@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/nameTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Song name"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/artistTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Artist name"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/albumTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Album name"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/delBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DELETE" />
+</LinearLayout>

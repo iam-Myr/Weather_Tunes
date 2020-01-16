@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
@@ -30,7 +31,10 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
         JSONObject trackJson = new JSONObject(trackJsonStr);
         JSONArray trackArray = trackJson.getJSONArray("results");
-        JSONObject aTrack = trackArray.getJSONObject(0);
+
+        Random rand = new Random();
+        int pos = rand.nextInt(10);
+        JSONObject aTrack = trackArray.getJSONObject(pos);
 
         int id = Integer.parseInt(aTrack.getString("id"));
         String name = aTrack.getString("name");
@@ -59,9 +63,6 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
         String trackJsonStr = null;
         String trackFormat = "json";
 
-        //http://api.jamendo.com/v3.0/tracks/?client_id=63258834&format=json&limit=1&fuzzytags=groove+rock
-        //http://api.jamendo.com/v3.0/tracks/?client_id=734077&format=json&limit=1&fuzzytags=groove%2Brock
-
         try {
             // Construct the URL for the Jamendo query
             // Possible parameters are avaiable at Jamendo's track API page, at
@@ -76,7 +77,7 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
             Uri builtUri = Uri.parse(baseUrl).buildUpon()
                     .appendQueryParameter(apiKeyParam, "63258834") //code for thessaloniki
                     .appendQueryParameter(formatParam, "json")
-                    .appendQueryParameter(limitParam, "1")
+                    .appendQueryParameter(limitParam, "10")
                     .appendQueryParameter(fuzzytagsParam, fuzzytags)
                     .build();
 

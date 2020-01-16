@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -54,10 +53,21 @@ public class MainActivity extends AppCompatActivity {
         favouritesBtn.setVisibility(View.GONE);
         addToFavBtn.setVisibility(View.GONE);
         TextView weatherTxt = findViewById(R.id.weatherTxt);
+        final TextView playingTxt = findViewById(R.id.playingTxt);
 
         Location location =  getLocation();
+        double longitude;
+        double latitude;
+        if(location == null){
+            longitude = 22.0;
+            latitude = 40.2;
+        }
+        else {
+           longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
 
-        FetchWeatherTask fetchWeather = new FetchWeatherTask(location.getLongitude(), location.getLatitude());
+        FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude );
         String cityAndWeather = null;
 
         try {
@@ -125,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 mediaPlayer.start();
+                playingTxt.setText("Now Playing: " + track.getName());
             }
         });
 

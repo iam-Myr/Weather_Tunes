@@ -10,19 +10,20 @@
         android:id="@+id/weatherTxt2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/displayDBTxt"
+    <ListView
+        android:id="@+id/favsList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:ems="10"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weatherTxt2" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
