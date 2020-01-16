@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -33,12 +35,14 @@ public class MainActivity extends AppCompatActivity {
     private static boolean ACCESS_FINE_LOCATION_GRANTED = false;
     public static SQLiteDatabase db;
     private Track track = null;
+    private String loadingUrl = "https://www.themassagesuite.gr/wp-content/uploads/2018/10/loading.png";
 
-    public static String ClearTags = "happy + brazil + cute + electric + energy";
-    public static String RainTags = "sad + cafe + jazz + funk + ballad + tango + lofi";
-    public static String CloudsTags = "rap + sad + storm";
-    public static String MistTags = "horror + scary + dark + metal";
-    public static String SnowTags = "christmas + bells + winter";
+    public static String[] ClearTags = {"happy", "brazil", "cute", "electric", "energy"};
+    public static String[] RainTags = {"sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi"};
+    public static String[] CloudsTags = {"rap", "sad", "storm"};
+    public static String[] MistTags = {"horror", "scary", "dark", "metal"};
+    public static String[] SnowTags = {"christmas", "bells", "winter"};
+    public static String[] FogTags = {"lost" + "scary"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         TextView weatherTxt = findViewById(R.id.weatherTxt);
         final TextView playingTxt = findViewById(R.id.playingTxt);
         final ImageView songImg = findViewById(R.id.songImg);
+        final Button pauseBtn = findViewById(R.id.pauseBtn);
 
 
         Location location =  getLocation();
@@ -99,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
                 Context.MODE_PRIVATE,
                 null);
 
-        //db.execSQL("CREATE TABLE IF NOT EXISTS Person(name text not null, age integer not null )");
         db.execSQL("CREATE TABLE IF NOT EXISTS \"Favourites\" (\n" +
                 "    \"id\"    INTEGER NOT NULL,\n" +
                 "    \"name\"    TEXT,\n" +
@@ -122,9 +126,11 @@ public class MainActivity extends AppCompatActivity {
         songBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Picasso.with(getApplicationContext()).load(loadingUrl).into(songImg);
                 playTrack(mediaPlayer, weather);
                 playingTxt.setText("Now Playing: " + track.getName());
                 Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
+                pauseBtn.setText("PAUSE");
             }
         });
 
@@ -144,11 +150,10 @@ public class MainActivity extends AppCompatActivity {
 
                     db.execSQL("INSERT OR IGNORE INTO Favourites(id,name,duration,artist_id,artist_name,album_name,album_id,album_image,audio_url)" +
                             "VALUES ('"+id+"','"+name+"','"+duration+"', '"+artist_id+"','"+artist_name+"','"+album_name+"','"+album_id+"','"+album_image+"','"+audio_url+"')");
+                    Toast.makeText(getApplicationContext(), "Added to favourites!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-
 
         favouritesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +162,19 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("weather", weather);
 
                 startActivity(intent);
+            }
+        });
+
+        pauseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mediaPlayer.isPlaying()){
+                    mediaPlayer.pause();
+                    pauseBtn.setText("PLAY");
+                } else {
+                    pauseBtn.setText("PAUSE");
+                    mediaPlayer.start();
+                }
             }
         });
 
@@ -244,15 +262,19 @@ public class MainActivity extends AppCompatActivity {
     public String generateTag(String weather){
         String tag;
 
+        Random rand = new Random();
 
-        //will be more complicated with randomizer tomorrow!!!!
+        //switch?
 
-        if (weather.equals("Clear")) tag = ClearTags;
-        else if (weather.equals("Clouds")) tag = CloudsTags;
-        else if (weather.equals("Rain")) tag = RainTags;
-        else if (weather.equals("Snow")) tag = SnowTags;
-        else if (weather.equals("Mist")) tag = MistTags;
-        else tag = "cafe";
+        Log.d("MYR", "tag: " + ClearTags[rand.nextInt(ClearTags.length)]);
+
+        if (weather.equals("Clear")) return ClearTags[rand.nextInt(ClearTags.length)];
+        else if (weather.equals("Clouds")) return CloudsTags[rand.nextInt(CloudsTags.length)];
+        else if (weather.equals("Rain")) return RainTags[rand.nextInt(RainTags.length)];
+        else if (weather.equals("Snow")) return SnowTags[rand.nextInt(SnowTags.length)];
+        else if (weather.equals("Mist")) return MistTags[rand.nextInt(MistTags.length)];
+        else if (weather.equals("Fog")) return FogTags[rand.nextInt(FogTags.length)];
+        else tag = "random";
 
         return tag;
 
