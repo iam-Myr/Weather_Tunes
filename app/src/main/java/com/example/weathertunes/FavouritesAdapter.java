@@ -71,7 +71,7 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
         nameView.setText(track.getName());
         artistView.setText("Artist: " + track.getArtist_name());
         albumView.setText("Album: " + track.getAlbum_name());
-        Picasso.with(context).load(track.getAlbum_image()).into(albumImg);
+        Picasso.with(context).load(track.getImage()).into(albumImg);
 
         return  rowView;
 

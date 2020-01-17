@@ -38,12 +38,12 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     private static Track currentTrack;
     private Intent intent;
     private static SQLiteDatabase db;
-    private static MediaPlayer mediaPlayer;
+    public static MediaPlayer mediaPlayer;
 
-    public static String[] ClearTags = {"happy", "brazil", "cute", "electric", "energy"};
-    public static String[] RainTags = {"sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi"};
-    public static String[] CloudsTags = {"rap", "sad", "storm"};
-    public static String[] MistTags = {"horror", "scary", "dark", "metal"};
+    public static String[] ClearTags = {"happy", "brazil", "cute", "swing", "upbeat", "guitar", "trumpet"};
+    public static String[] RainTags = {"sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi", "violin", "piano", "romantic"};
+    public static String[] CloudsTags = {"sad", "storm", "melancholy", "grey", "lofi", "space", "indie", "ambient", "newage"};
+    public static String[] MistTags = {"horror", "scary", "dark", "metal", "classic"};
     public static String[] SnowTags = {"christmas", "bells", "winter"};
     public static String[] FogTags = {"scary"};
 
@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         double longitude;
         double latitude;
         if(location == null){
-            latitude = 34.3666; //33.74900;
-            longitude = 25.9507;//84.38798;
+            latitude = 45.3666; //33.74900;
+            longitude = 45.9507;//84.38798;
             Toast.makeText(getApplicationContext(), "Couldn't find location! You are now in Atlanta", Toast.LENGTH_SHORT).show();
         }
         else {
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             @Override
             public void onPrepared(MediaPlayer player) {
                 playingTxt.setText("Now Playing: " + currentTrack.getName());
-                Picasso.with(getApplicationContext()).load(currentTrack.getAlbum_image()).into(songImg);
+                Picasso.with(getApplicationContext()).load(currentTrack.getImage()).into(songImg);
                 pauseBtn.setText("PAUSE");
                 player.start();
                 MEDIAPLAYER_STARTED = true;
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 songImg.setImageResource(getResources().getIdentifier("drawable/loading", null, "com.example.weathertunes"));
                 if(WEATHER_FETCHED) {
                     mediaPlayer.reset();
-                    fetchTrack(weather[1]);
+                    fetchTrack(weather[0]);
                 }
             }
         });
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                     String artist_name = currentTrack.getArtist_name();
                     String album_name = currentTrack.getAlbum_name();
                     int album_id = currentTrack.getAlbum_id();
-                    String album_image = currentTrack.getAlbum_image();
+                    String album_image = currentTrack.getImage();
                     String audio_url = currentTrack.getAudio_url();
 
                     db.execSQL("INSERT OR IGNORE INTO Favourites(id,name,duration,artist_id,artist_name,album_name,album_id,album_image,audio_url)" +
@@ -192,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         favouritesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //intent.putExtra("weather", weather[1]); attempts to read from null array
                 intent.putExtra("playerStarted",MEDIAPLAYER_STARTED);
 
                 startActivity(intent);
@@ -260,7 +259,13 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 mediaPlayer.setDataSource(currentTrack.getAudio_url());
                 mediaPlayer.prepareAsync();
             }
-            else Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
+            else {
+                Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
+                pauseBtn.setEnabled(true);
+                skipBtn.setEnabled(true);
+                addToFavBtn.setEnabled(true);
+                fetchTrack(weather[1]);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -319,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         pauseBtn.setEnabled(false);
         skipBtn.setEnabled(false);
         addToFavBtn.setEnabled(false);
+
         String tag = generateTag(weather);
 
         FetchTrackTask fetchTrack = new FetchTrackTask(tag, this);
@@ -327,24 +333,38 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
     public String generateTag(String weather){
         Random rand = new Random();
+        String[] tagArray = null;
 
         switch (weather) {
             case "Clear":
-                return ClearTags[rand.nextInt(ClearTags.length)];
+                tagArray = ClearTags;
+                break;
             case "Clouds":
-                return CloudsTags[rand.nextInt(CloudsTags.length)];
+                tagArray = CloudsTags;
+                break;
             case "Rain":
-                return RainTags[rand.nextInt(RainTags.length)];
+                tagArray = RainTags;
+                break;
             case "Snow":
-                return SnowTags[rand.nextInt(SnowTags.length)];
+                tagArray = SnowTags;
+                break;
             case "Mist":
-                return MistTags[rand.nextInt(MistTags.length)];
+                tagArray = MistTags;
+                break;
             case "Fog":
-                return FogTags[rand.nextInt(FogTags.length)];
+                tagArray = FogTags;
+                break;
             default:
                 return "random";
 
         }
-    }
+        StringBuilder tags = new StringBuilder();
 
+        for(int i=0;i<tagArray.length;i++){
+            tags.append(tagArray[rand.nextInt(tagArray.length)]+"+");
+        }
+
+       Log.d("MYR", tags.toString());
+        return tags.toString();
+    }
 }

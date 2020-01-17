@@ -9,7 +9,7 @@ public class Track {
     private String artist_name;
     private String album_name;
     private int album_id;
-    private String album_image;
+    private String image;
     private String audio_url;
 
     public Track(int id, String name, int duration, int artist_id, String artist_name, String album_name, int album_id, String album_image, String audio_url) {
@@ -20,7 +20,7 @@ public class Track {
         this.artist_name = artist_name;
         this.album_name = album_name;
         this.album_id = album_id;
-        this.album_image = album_image;
+        this.image = album_image;
         this.audio_url = audio_url;
     }
 
@@ -52,8 +52,8 @@ public class Track {
         return album_id;
     }
 
-    public String getAlbum_image() {
-        return album_image;
+    public String getImage() {
+        return image;
     }
 
     public String getAudio_url() {

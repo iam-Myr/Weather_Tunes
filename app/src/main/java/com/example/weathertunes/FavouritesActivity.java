@@ -1,5 +1,7 @@
 package com.example.weathertunes;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -7,10 +9,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
+import static com.example.weathertunes.MainActivity.mediaPlayer;
 
 public class FavouritesActivity extends AppCompatActivity implements FavouritesAdapter.AdapterCallback {
 
@@ -37,6 +43,27 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
         //weatherTxt.setText("Current weather: " + weather);
 
         favList = findViewById(R.id.favsList);
+        favList.setClickable(true);
+        favList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (intent.getBooleanExtra("playerStarted", false)) {
+                    Track track = favourites.get(position);
+                    Log.d("MYR", "Song is: " + track.toString());
+                    mediaPlayer.reset();
+                    try {
+                        mediaPlayer.setDataSource(track.getAudio_url());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mediaPlayer.prepareAsync();
+                    intent.putExtra("album_img",track.getImage());
+                    intent.putExtra("song_name",track.getName());
+                }
+            }
+        });
+
+
 
     }
 

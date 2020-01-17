@@ -38,7 +38,6 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
         JSONArray trackArray = trackJson.getJSONArray("results");
 
         Random rand = new Random();
-        //int pos = rand.nextInt(10);
         JSONObject aTrack = trackArray.getJSONObject(0);
 
         int id = Integer.parseInt(aTrack.getString("id"));
@@ -48,10 +47,10 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
         String artist_name = aTrack.getString("artist_name");
         String album_name = aTrack.getString("album_name");
         int album_id = Integer.parseInt(aTrack.getString("album_id"));
-        String album_image = aTrack.getString("album_image");
+        String image = aTrack.getString("image");
         String audio_url = aTrack.getString("audio");
 
-        Track track = new Track(id, name, duration, artist_id, artist_name, album_name, album_id, album_image, audio_url);
+        Track track = new Track(id, name, duration, artist_id, artist_name, album_name, album_id, image, audio_url);
 
         return track;
     }
@@ -83,7 +82,7 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
             Uri builtUri = Uri.parse(baseUrl).buildUpon()
                     .appendQueryParameter(apiKeyParam, "63258834")
                     .appendQueryParameter(formatParam, "json")
-                    .appendQueryParameter(offsetParam, String.valueOf(new Random().nextInt(10)))
+                    .appendQueryParameter(offsetParam, String.valueOf(new Random().nextInt(20)))
                     .appendQueryParameter(limitParam, "1")
                     .appendQueryParameter(fuzzytagsParam, fuzzytags)
                     .build();

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#B2DFDB"
     tools:context=".MainActivity">
 
     <Button
@@ -12,6 +13,8 @@
         android:layout_height="wrap_content"
         android:text="SKIP"
         android:textSize="14sp"
+        android:background="#009688"
+        android:textColor="#E0F7FA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
         app:layout_constraintHorizontal_bias="0.573"
@@ -36,6 +39,8 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:text="FAV"
+        android:background="#009688"
+        android:textColor="#E0F7FA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.437"
@@ -47,6 +52,8 @@
         android:id="@+id/weatherTxt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="#80CBC4"
+        android:textAlignment="center"
         android:textColor="#021218"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -60,14 +67,15 @@
         android:id="@+id/favouritesBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:background="#009688"
         android:text="FAVOURITES"
+        android:textColor="#E0F7FA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.825"
+        app:layout_constraintHorizontal_bias="0.826"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addToFavBtn"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/pauseBtn"
+        app:layout_constraintVertical_bias="0.364" />
 
     <ImageView
         android:id="@+id/songImg"
@@ -87,6 +95,8 @@
         android:layout_height="wrap_content"
         android:text="PAUSE"
         android:textSize="18sp"
+        android:background="#009688"
+        android:textColor="#E0F7FA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
