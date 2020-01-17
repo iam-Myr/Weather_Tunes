@@ -8,20 +8,20 @@
 
     <Button
         android:id="@+id/skipBtn"
-        android:layout_width="71dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="72dp"
-        android:layout_marginTop="36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="SKIP"
         android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.573"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playingTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/playingTxt"
+        app:layout_constraintVertical_bias="0.094" />
 
     <TextView
         android:id="@+id/playingTxt"
-        android:layout_width="411dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:textAlignment="center"
@@ -35,22 +35,26 @@
         android:id="@+id/addToFavBtn"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="34dp"
-        android:layout_marginTop="28dp"
         android:text="FAV"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.437"
         app:layout_constraintStart_toEndOf="@+id/pauseBtn"
-        app:layout_constraintTop_toBottomOf="@+id/playingTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/playingTxt"
+        app:layout_constraintVertical_bias="0.095" />
 
     <TextView
         android:id="@+id/weatherTxt"
-        android:layout_width="411dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="#021218"
         android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/favouritesBtn"
@@ -58,34 +62,36 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:text="FAVOURITES"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.825"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addToFavBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/addToFavBtn"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/songImg"
         android:layout_width="186dp"
         android:layout_height="174dp"
-        android:layout_marginTop="104dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weatherTxt"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:layout_constraintVertical_bias="0.154"
+        tools:srcCompat="@android:drawable/btn_star_big_on" />
 
     <Button
         android:id="@+id/pauseBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:text="PAUSE"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playingTxt"
-        app:layout_constraintVertical_bias="0.033" />
+        app:layout_constraintVertical_bias="0.089" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

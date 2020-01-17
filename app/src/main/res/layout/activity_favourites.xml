@@ -7,9 +7,11 @@
     tools:context=".FavouritesActivity">
 
     <TextView
-        android:id="@+id/weatherTxt2"
+        android:id="@+id/favouritesTxt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:text="Favourites"
+        android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,6 +26,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/weatherTxt2" />
+        app:layout_constraintTop_toBottomOf="@+id/favouritesTxt" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

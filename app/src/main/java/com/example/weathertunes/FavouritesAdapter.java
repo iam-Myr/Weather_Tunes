@@ -9,10 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
 import androidx.annotation.NonNull;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -41,7 +44,7 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
         rowView = inflater.inflate(R.layout.list_item_favourite, null);
 
 
-        Button delBtn = (Button) rowView.findViewById(R.id.delBtn);
+        Button delBtn = rowView.findViewById(R.id.delBtn);
         delBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,10 +65,13 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
         TextView nameView = rowView.findViewById(R.id.nameTxt);
         TextView artistView = rowView.findViewById(R.id.artistTxt);
         TextView albumView = rowView.findViewById(R.id.albumTxt);
+        ImageView albumImg = rowView.findViewById(R.id.albumImg);
+
 
         nameView.setText(track.getName());
         artistView.setText("Artist: " + track.getArtist_name());
         albumView.setText("Album: " + track.getAlbum_name());
+        Picasso.with(context).load(track.getAlbum_image()).into(albumImg);
 
         return  rowView;
 

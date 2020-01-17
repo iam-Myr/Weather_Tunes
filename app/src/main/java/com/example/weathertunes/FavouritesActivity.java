@@ -1,7 +1,6 @@
 package com.example.weathertunes;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,29 +9,34 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import java.util.ArrayList;
+
 
 public class FavouritesActivity extends AppCompatActivity implements FavouritesAdapter.AdapterCallback {
 
-    SQLiteDatabase db = MainActivity.db;
-    FavouritesAdapter favAdapter;
-    ArrayList favourites;
+    private SQLiteDatabase db;
+    private FavouritesAdapter favAdapter;
+    private ArrayList<Track> favourites;
+    private ListView favList;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favourites);
 
-        //loadDataFromArrayL();
+        db = getBaseContext().openOrCreateDatabase(
+                "favourites-db.db",
+                Context.MODE_PRIVATE,
+                null);
 
-        Intent intent = getIntent();
+        intent = getIntent();
 
-        TextView weatherTxt = findViewById(R.id.weatherTxt2);
-        String weather = intent.getStringExtra("weather");
-        weatherTxt.setText("Current weather: " + weather);
+        TextView favouritesTxt = findViewById(R.id.favouritesTxt);
+        //String weather = intent.getStringExtra("weather");
+        //weatherTxt.setText("Current weather: " + weather);
 
-        getArrayFromDB(db);
+        favList = findViewById(R.id.favsList);
 
     }
 
@@ -41,13 +45,14 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
         super.onStart();
         this.favourites = getArrayFromDB(this.db);
         loadDataFromArrayL(favourites);
+        Log.d("MYR", "I got: "+intent.getStringExtra("album_img"));
     }
 
     public void loadDataFromArrayL(ArrayList<Track> list){
 
         favAdapter = new FavouritesAdapter(this,list, this);
 
-        ListView favList = findViewById(R.id.favsList);
+
         favList.setAdapter(favAdapter);
         favAdapter.notifyDataSetChanged();
     }
