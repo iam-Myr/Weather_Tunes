@@ -46,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
     private TextView weatherTxt;
     private Button pauseBtn;
+    private Button songBtn;
+    private Button favouritesBtn;
+    private Button addToFavBtn;
     private TextView playingTxt;
     private ImageView songImg;
 
@@ -56,35 +59,64 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
         //Get activity items
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
-        final Button songBtn = findViewById(R.id.songBtn);
-        Button favouritesBtn = findViewById(R.id.favouritesBtn);
-        Button addToFavBtn = findViewById(R.id.addToFavBtn);
-        songBtn.setVisibility(View.GONE);
-        favouritesBtn.setVisibility(View.GONE);
-        addToFavBtn.setVisibility(View.GONE);
+        songBtn = findViewById(R.id.skipBtn);
+        favouritesBtn = findViewById(R.id.favouritesBtn);
+        addToFavBtn = findViewById(R.id.addToFavBtn);
         this.weatherTxt = findViewById(R.id.weatherTxt);
         playingTxt =  findViewById(R.id.playingTxt);
         songImg = findViewById(R.id.songImg);
         pauseBtn = findViewById(R.id.pauseBtn);
 
+        //Get location
         Location location =  getLocation();
         double longitude;
         double latitude;
         if(location == null){
-            Log.d("MYR", "IM IN NULL?");
-            latitude = 44.3666; //33.74900;
-            longitude = 23.9507;//84.38798;
+            latitude = 34.3666; //33.74900;
+            longitude = 25.9507;//84.38798;
             Toast.makeText(getApplicationContext(), "Couldn't find location! You are now in Atlanta", Toast.LENGTH_SHORT).show();
         }
         else {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
         }
+
+        //Get weather
         FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude, this );
         fetchWeather.execute();
 
+        //Create Media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if(WEATHER_FETCHED) {
+                    mediaPlayer.reset();
+                    fetchTrack(weather[1]);
+                }
+            }
+        });
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer player) {
+                playingTxt.setText("Now Playing: " + track.getName());
+                Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
+                pauseBtn.setText("PAUSE");
+                player.start();
+            }
+
+
+        });
+
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                mediaPlayer.reset();
+                return false;
+            }
+        });
 
         //Create or open DB
         db = getBaseContext().openOrCreateDatabase(
@@ -106,9 +138,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 ");");
 
         //Make buttons visible
-        songBtn.setVisibility(View.VISIBLE);
-        favouritesBtn.setVisibility(View.VISIBLE);
-        addToFavBtn.setVisibility(View.VISIBLE);
+
 
         songBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,7 +194,13 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 }
             }
         });
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaPlayer.release();
+        mediaPlayer = null;
     }
 
     @Override
@@ -177,6 +213,10 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         else {
             Toast.makeText(getApplicationContext(), "Couldn't fetch weather", Toast.LENGTH_SHORT).show();
         }
+
+        if(WEATHER_FETCHED) {
+            fetchTrack(weather[1]);
+        }
     }
 
     @Override
@@ -186,15 +226,9 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         try {
             if (track != null) {
                 mediaPlayer.setDataSource(track.getAudio_url());
-                mediaPlayer.prepare();// might take long! (for buffering, etc)
-                mediaPlayer.start();
-
-                playingTxt.setText("Now Playing: " + track.getName());
-                Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
-                pauseBtn.setText("PAUSE");
+                mediaPlayer.prepareAsync();
             }
             else Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -277,7 +311,5 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
         }
     }
-
-
 
 }
