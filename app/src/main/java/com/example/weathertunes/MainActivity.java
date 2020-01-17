@@ -263,25 +263,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public String generateTag(String weather){
+    public String generateTag(String weather) {
         String tag;
 
         Random rand = new Random();
 
-        //switch?
 
-        Log.d("MYR", "tag: " + ClearTags[rand.nextInt(ClearTags.length)]);
+        switch (weather) {
+            case "Clear":
+                return ClearTags[rand.nextInt(ClearTags.length)];
+            case "Clouds":
+                return CloudsTags[rand.nextInt(CloudsTags.length)];
+            case "Rain":
+                return RainTags[rand.nextInt(RainTags.length)];
+            case "Snow":
+                return SnowTags[rand.nextInt(SnowTags.length)];
+            case "Mist":
+                return MistTags[rand.nextInt(MistTags.length)];
+            case "Fog":
+                return FogTags[rand.nextInt(FogTags.length)];
+            default:
+                return "random";
 
-        if (weather.equals("Clear")) return ClearTags[rand.nextInt(ClearTags.length)];
-        else if (weather.equals("Clouds")) return CloudsTags[rand.nextInt(CloudsTags.length)];
-        else if (weather.equals("Rain")) return RainTags[rand.nextInt(RainTags.length)];
-        else if (weather.equals("Snow")) return SnowTags[rand.nextInt(SnowTags.length)];
-        else if (weather.equals("Mist")) return MistTags[rand.nextInt(MistTags.length)];
-        else if (weather.equals("Fog")) return FogTags[rand.nextInt(FogTags.length)];
-        else tag = "random";
-
-        return tag;
-
-
+        }
     }
 }
