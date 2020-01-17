@@ -29,13 +29,12 @@ import java.util.concurrent.ExecutionException;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FetchWeatherTask.OnTaskCompleted {
 
     private static final int REQUEST_CODE_ACCESS_FINE_LOCATION = 1;
     private static boolean ACCESS_FINE_LOCATION_GRANTED = false;
     public static SQLiteDatabase db;
     private Track track = null;
-    private String loadingUrl = "https://www.themassagesuite.gr/wp-content/uploads/2018/10/loading.png";
 
     public static String[] ClearTags = {"happy", "brazil", "cute", "electric", "energy"};
     public static String[] RainTags = {"sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi"};
@@ -43,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
     public static String[] MistTags = {"horror", "scary", "dark", "metal"};
     public static String[] SnowTags = {"christmas", "bells", "winter"};
     public static String[] FogTags = {"scary"};
+
+    TextView weatherTxt;
+    String[] weather;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         songBtn.setVisibility(View.GONE);
         favouritesBtn.setVisibility(View.GONE);
         addToFavBtn.setVisibility(View.GONE);
-        TextView weatherTxt = findViewById(R.id.weatherTxt);
+        this.weatherTxt = findViewById(R.id.weatherTxt);
         final TextView playingTxt = findViewById(R.id.playingTxt);
         final ImageView songImg = findViewById(R.id.songImg);
         final Button pauseBtn = findViewById(R.id.pauseBtn);
@@ -69,33 +72,17 @@ public class MainActivity extends AppCompatActivity {
         double latitude;
         if(location == null){
             Log.d("MYR", "IM IN NULL?");
-            latitude = 39.3666; //33.74900;
-            longitude = 22.9507;//84.38798;
+            latitude = 44.3666; //33.74900;
+            longitude = 23.9507;//84.38798;
             Toast.makeText(getApplicationContext(), "Couldn't find location! You are now in Atlanta", Toast.LENGTH_SHORT).show();
-
         }
         else {
-           longitude = location.getLongitude();
-           latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
         }
+        FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude, this );
+        fetchWeather.execute();
 
-        FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude );
-       String[] weather = null;
-
-        try {
-           weather = fetchWeather.execute().get();
-            if (weather == null) {
-                weather[0] = "Atlanta";
-                weather[1] = "Clouds";
-            }
-            Log.d("MYR", "The weather is: " + weather[0] + " - "+ weather[1]);
-            weatherTxt.setText(weather[0] + " - "+ weather[1]);
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         final MediaPlayer mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -125,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
         favouritesBtn.setVisibility(View.VISIBLE);
         addToFavBtn.setVisibility(View.VISIBLE);
 
-        final String[] fweather = weather;// CHANGE THIS FFS
+        final String fweather = "Clear";// CHANGE THIS FFS
 
         songBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Picasso.with(getApplicationContext()).load(loadingUrl).into(songImg);
-                playTrack(mediaPlayer, fweather[1]);
+                playTrack(mediaPlayer, fweather);
                 playingTxt.setText("Now Playing: " + track.getName());
                 Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
                 pauseBtn.setText("PAUSE");
@@ -181,6 +168,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+    }
+
+    @Override
+    public void onWeatherFetchCompleted(String[] strings) {
+        String [] weather = strings;
+        Log.d("MYR", "The weather is: " + weather[0] + " - " + weather[1]);
+        weatherTxt.setText(weather[0] + " - "+ weather[1]);
 
     }
 
@@ -264,24 +259,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String generateTag(String weather){
-        String tag;
-
         Random rand = new Random();
 
-        //switch?
+        switch (weather) {
+            case "Clear":
+                return ClearTags[rand.nextInt(ClearTags.length)];
+            case "Clouds":
+                return CloudsTags[rand.nextInt(CloudsTags.length)];
+            case "Rain":
+                return RainTags[rand.nextInt(RainTags.length)];
+            case "Snow":
+                return SnowTags[rand.nextInt(SnowTags.length)];
+            case "Mist":
+                return MistTags[rand.nextInt(MistTags.length)];
+            case "Fog":
+                return FogTags[rand.nextInt(FogTags.length)];
+            default:
+                return "random";
 
-        Log.d("MYR", "tag: " + ClearTags[rand.nextInt(ClearTags.length)]);
-
-        if (weather.equals("Clear")) return ClearTags[rand.nextInt(ClearTags.length)];
-        else if (weather.equals("Clouds")) return CloudsTags[rand.nextInt(CloudsTags.length)];
-        else if (weather.equals("Rain")) return RainTags[rand.nextInt(RainTags.length)];
-        else if (weather.equals("Snow")) return SnowTags[rand.nextInt(SnowTags.length)];
-        else if (weather.equals("Mist")) return MistTags[rand.nextInt(MistTags.length)];
-        else if (weather.equals("Fog")) return FogTags[rand.nextInt(FogTags.length)];
-        else tag = "random";
-
-        return tag;
-
-
+        }
     }
+
+
 }

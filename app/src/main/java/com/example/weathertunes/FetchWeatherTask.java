@@ -2,7 +2,6 @@ package com.example.weathertunes;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.text.format.Time;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -15,18 +14,21 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
     private String longitude;
     private String latitude;
+    private OnTaskCompleted listener;
 
-    public FetchWeatherTask(double longitude, double latitude) {
+    public FetchWeatherTask(double longitude, double latitude, OnTaskCompleted listener) {
         this.longitude = String.valueOf(longitude);
         this.latitude = String.valueOf(latitude);
+        this.listener = listener;
+    }
+
+    public interface OnTaskCompleted{
+        void onWeatherFetchCompleted(String [] result);
     }
 
     private String[] getWeatherDataFromJson(String weatherJsonStr)
@@ -137,4 +139,8 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return null;
     }
 
+    @Override
+    protected void onPostExecute(String[] result) {
+        listener.onWeatherFetchCompleted(result);
+    }
 }
