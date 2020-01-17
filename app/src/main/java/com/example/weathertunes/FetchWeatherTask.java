@@ -27,7 +27,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         this.listener = listener;
     }
 
-    public interface OnTaskCompleted{
+    public interface OnTaskCompleted {
         void onWeatherFetchCompleted(String [] result);
     }
 
@@ -141,6 +141,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
     @Override
     protected void onPostExecute(String[] result) {
+        if (result != null) Log.d("MYR", "The weather is: " + result[0] + " - " + result[1]);
         listener.onWeatherFetchCompleted(result);
     }
 }

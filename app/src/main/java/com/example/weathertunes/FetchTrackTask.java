@@ -20,9 +20,15 @@ import java.util.Random;
 public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
     String fuzzytags;
+    private OnTaskCompleted listener;
 
-    public FetchTrackTask(String fuzzytags) {
+    public FetchTrackTask(String fuzzytags, OnTaskCompleted listener) {
         this.fuzzytags = fuzzytags;
+        this.listener = listener;
+    }
+
+    public interface OnTaskCompleted {
+        void onTrackFetchCompleted(Track track);
     }
 
     private Track getTrackDataFromJson(String trackJsonStr)
@@ -77,7 +83,7 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
             Uri builtUri = Uri.parse(baseUrl).buildUpon()
                     .appendQueryParameter(apiKeyParam, "63258834")
                     .appendQueryParameter(formatParam, "json")
-                    .appendQueryParameter(offsetParam, String.valueOf(new Random().nextInt(20)))
+                    .appendQueryParameter(offsetParam, String.valueOf(new Random().nextInt(10)))
                     .appendQueryParameter(limitParam, "1")
                     .appendQueryParameter(fuzzytagsParam, fuzzytags)
                     .build();
@@ -142,8 +148,9 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
     }
 
     @Override
-    protected void onPostExecute(Track track) {
-        if (track != null) Log.d("MYR", track.toString());
+    protected void onPostExecute(Track result) {
+        if (result != null) Log.d("MYR", result.toString());
+        listener.onTrackFetchCompleted(result);
     }
 
 }

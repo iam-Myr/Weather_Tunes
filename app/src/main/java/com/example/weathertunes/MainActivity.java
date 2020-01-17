@@ -22,19 +22,20 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 
-public class MainActivity extends AppCompatActivity implements FetchWeatherTask.OnTaskCompleted {
+public class MainActivity extends AppCompatActivity implements FetchWeatherTask.OnTaskCompleted, FetchTrackTask.OnTaskCompleted {
 
     private static final int REQUEST_CODE_ACCESS_FINE_LOCATION = 1;
     private static boolean ACCESS_FINE_LOCATION_GRANTED = false;
+    private static boolean WEATHER_FETCHED = false;
+    private static String[] weather;
+    private static Track track;
     public static SQLiteDatabase db;
-    private Track track = null;
+    private static MediaPlayer mediaPlayer;
 
     public static String[] ClearTags = {"happy", "brazil", "cute", "electric", "energy"};
     public static String[] RainTags = {"sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi"};
@@ -43,15 +44,15 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     public static String[] SnowTags = {"christmas", "bells", "winter"};
     public static String[] FogTags = {"scary"};
 
-    TextView weatherTxt;
-    String[] weather;
-
+    private TextView weatherTxt;
+    private Button pauseBtn;
+    private TextView playingTxt;
+    private ImageView songImg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         //Get activity items
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
@@ -62,10 +63,9 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         favouritesBtn.setVisibility(View.GONE);
         addToFavBtn.setVisibility(View.GONE);
         this.weatherTxt = findViewById(R.id.weatherTxt);
-        final TextView playingTxt = findViewById(R.id.playingTxt);
-        final ImageView songImg = findViewById(R.id.songImg);
-        final Button pauseBtn = findViewById(R.id.pauseBtn);
-
+        playingTxt =  findViewById(R.id.playingTxt);
+        songImg = findViewById(R.id.songImg);
+        pauseBtn = findViewById(R.id.pauseBtn);
 
         Location location =  getLocation();
         double longitude;
@@ -83,8 +83,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude, this );
         fetchWeather.execute();
 
-
-        final MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         //Create or open DB
@@ -106,22 +105,19 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 "    PRIMARY KEY(\"id\")\n" +
                 ");");
 
-
         //Make buttons visible
         songBtn.setVisibility(View.VISIBLE);
         favouritesBtn.setVisibility(View.VISIBLE);
         addToFavBtn.setVisibility(View.VISIBLE);
 
-        final String fweather = "Clear";// CHANGE THIS FFS
-
         songBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Picasso.with(getApplicationContext()).load(loadingUrl).into(songImg);
-                playTrack(mediaPlayer, fweather);
-                playingTxt.setText("Now Playing: " + track.getName());
-                Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
-                pauseBtn.setText("PAUSE");
+                if(WEATHER_FETCHED) {
+                    mediaPlayer.reset();
+                    fetchTrack(weather[1]);
+                }
             }
         });
 
@@ -150,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this,FavouritesActivity.class);
-                intent.putExtra("weather", fweather);
+                intent.putExtra("weather", weather[1]);
 
                 startActivity(intent);
             }
@@ -172,11 +168,36 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     }
 
     @Override
-    public void onWeatherFetchCompleted(String[] strings) {
-        String [] weather = strings;
-        Log.d("MYR", "The weather is: " + weather[0] + " - " + weather[1]);
-        weatherTxt.setText(weather[0] + " - "+ weather[1]);
+    public void onWeatherFetchCompleted(String[] result) {
+        if(result != null) {
+            weather = result;
+            weatherTxt.setText(weather[0] + " - " + weather[1]);
+            WEATHER_FETCHED = true;
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Couldn't fetch weather", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    @Override
+    public void onTrackFetchCompleted(Track result) {
+        track = result;
+
+        try {
+            if (track != null) {
+                mediaPlayer.setDataSource(track.getAudio_url());
+                mediaPlayer.prepare();// might take long! (for buffering, etc)
+                mediaPlayer.start();
+
+                playingTxt.setText("Now Playing: " + track.getName());
+                Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
+                pauseBtn.setText("PAUSE");
+            }
+            else Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Location getLocation() {
@@ -228,34 +249,11 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         }
     }
 
-    public void playTrack(MediaPlayer player, String weather){
-        player.reset();
-
+    public void fetchTrack(String weather){
         String tag = generateTag(weather);
 
-        FetchTrackTask fetchTrack = new FetchTrackTask(tag);
-        try {
-            track = fetchTrack.execute().get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            if (track != null) {
-                player.setDataSource(track.getAudio_url());
-
-                player.prepare();// might take long! (for buffering, etc)
-                player.start();
-
-            }
-            else Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        FetchTrackTask fetchTrack = new FetchTrackTask(tag, this);
+        fetchTrack.execute();
     }
 
     public String generateTag(String weather){
@@ -279,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
         }
     }
+
 
 
 }
