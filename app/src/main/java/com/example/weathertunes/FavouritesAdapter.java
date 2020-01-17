@@ -53,7 +53,7 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                mAdapterCallback.onDelBtnClickCallback(fview, favourites);
+                                mAdapterCallback.onDelFromDBCallback(fview, favourites);
                             }})
                         .setNegativeButton(android.R.string.no, null).show();
             }
@@ -72,7 +72,7 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
     }
 
     public interface AdapterCallback {
-        void onDelBtnClickCallback(View v, ArrayList favs);
+        void onDelFromDBCallback(View v, ArrayList favs);
     }
 
 

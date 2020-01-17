@@ -32,8 +32,8 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
         JSONArray trackArray = trackJson.getJSONArray("results");
 
         Random rand = new Random();
-        int pos = rand.nextInt(10);
-        JSONObject aTrack = trackArray.getJSONObject(pos);
+        //int pos = rand.nextInt(10);
+        JSONObject aTrack = trackArray.getJSONObject(0);
 
         int id = Integer.parseInt(aTrack.getString("id"));
         String name = aTrack.getString("name");
@@ -70,13 +70,15 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
             //"client_id=63258834&format=json&limit=1&fuzzytags=groove+rock";
             final String apiKeyParam = "client_id";
             final String formatParam = "format";
+            final String offsetParam = "offset";
             final String limitParam = "limit";
             final String fuzzytagsParam = "fuzzytags";
 
             Uri builtUri = Uri.parse(baseUrl).buildUpon()
-                    .appendQueryParameter(apiKeyParam, "63258834") //code for thessaloniki
+                    .appendQueryParameter(apiKeyParam, "63258834")
                     .appendQueryParameter(formatParam, "json")
-                    .appendQueryParameter(limitParam, "10")
+                    .appendQueryParameter(offsetParam, String.valueOf(new Random().nextInt(20)))
+                    .appendQueryParameter(limitParam, "1")
                     .appendQueryParameter(fuzzytagsParam, fuzzytags)
                     .build();
 

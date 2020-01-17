@@ -19,9 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FetchWeatherTask extends AsyncTask<String, Void, String> {
+public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
-    private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
     private String longitude;
     private String latitude;
 
@@ -30,23 +29,25 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
         this.latitude = String.valueOf(latitude);
     }
 
-    private String getWeatherDataFromJson(String weatherJsonStr)
+    private String[] getWeatherDataFromJson(String weatherJsonStr)
             throws JSONException {
+
+        String[] weather = new String[2];
 
         JSONObject weatherJson = new JSONObject(weatherJsonStr);
         String city = weatherJson.getString("name");
+        weather[0] = city;
 
         JSONArray articlesJson = weatherJson.getJSONArray("weather");
         JSONObject weatherDescJson = articlesJson.getJSONObject(0);
         String mainWeather = weatherDescJson.getString("main");
+        weather[1] = mainWeather;
 
-        String resultString = (city + " - " + mainWeather);
-
-        return resultString;
+        return weather;
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    protected String[] doInBackground(String... params) {
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -107,9 +108,9 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
-            Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
+            Log.v("MYR", "Forecast JSON String: " + forecastJsonStr);
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
+            Log.e("MYR", "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             return null;
@@ -121,14 +122,14 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
+                    Log.e("MYR", "Error closing stream", e);
                 }
             }
         }
         try {
             return getWeatherDataFromJson(forecastJsonStr);
         } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
+            Log.e("MYR", e.getMessage(), e);
             e.printStackTrace();
         }
 
@@ -136,8 +137,4 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String> {
         return null;
     }
 
-    @Override
-    protected void onPostExecute(String result) {
-
-    }
 }

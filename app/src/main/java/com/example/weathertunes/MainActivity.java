@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static String[] CloudsTags = {"rap", "sad", "storm"};
     public static String[] MistTags = {"horror", "scary", "dark", "metal"};
     public static String[] SnowTags = {"christmas", "bells", "winter"};
-    public static String[] FogTags = {"lost" + "scary"};
+    public static String[] FogTags = {"scary"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +80,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude );
-        String cityAndWeather = null;
+       String[] weather = null;
 
         try {
-            cityAndWeather = fetchWeather.execute().get();
-            if (cityAndWeather == null) cityAndWeather = "Atlanta - Clouds";
-            Log.d("MYR", "The weather is: " + cityAndWeather);
-            weatherTxt.setText(cityAndWeather);
+           weather = fetchWeather.execute().get();
+            if (weather == null) {
+                weather[0] = "Atlanta";
+                weather[1] = "Clouds";
+            }
+            Log.d("MYR", "The weather is: " + weather[0] + " - "+ weather[1]);
+            weatherTxt.setText(weather[0] + " - "+ weather[1]);
 
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -94,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final String weather = cityAndWeather.split(" - ")[1];
         final MediaPlayer mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
@@ -123,11 +125,13 @@ public class MainActivity extends AppCompatActivity {
         favouritesBtn.setVisibility(View.VISIBLE);
         addToFavBtn.setVisibility(View.VISIBLE);
 
+        final String[] fweather = weather;// CHANGE THIS FFS
+
         songBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Picasso.with(getApplicationContext()).load(loadingUrl).into(songImg);
-                playTrack(mediaPlayer, weather);
+                playTrack(mediaPlayer, fweather[1]);
                 playingTxt.setText("Now Playing: " + track.getName());
                 Picasso.with(getApplicationContext()).load(track.getAlbum_image()).into(songImg);
                 pauseBtn.setText("PAUSE");
@@ -159,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this,FavouritesActivity.class);
-                intent.putExtra("weather", weather);
+                intent.putExtra("weather", fweather);
 
                 startActivity(intent);
             }
