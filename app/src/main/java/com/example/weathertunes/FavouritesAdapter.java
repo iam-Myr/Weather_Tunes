@@ -36,16 +36,24 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        View rowView = convertView;
+        ViewHolder viewHolder;
 
-        Track track = favourites.get(position);
+        if(convertView == null){
+            LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.list_item_favourite, null);
+            viewHolder = new ViewHolder(convertView);
+            convertView.setTag(viewHolder);
+        }
+        else {
+            viewHolder = (ViewHolder)convertView.getTag();
+        }
 
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        rowView = inflater.inflate(R.layout.list_item_favourite, null);
 
 
-        Button delBtn = rowView.findViewById(R.id.delBtn);
-        delBtn.setOnClickListener(new View.OnClickListener() {
+
+
+
+        viewHolder.delBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("MYR", "DEL WAS PRESSED");
@@ -62,19 +70,30 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
             }
         });
 
-        TextView nameView = rowView.findViewById(R.id.nameTxt);
-        TextView artistView = rowView.findViewById(R.id.artistTxt);
-        TextView albumView = rowView.findViewById(R.id.albumTxt);
-        ImageView albumImg = rowView.findViewById(R.id.albumImg);
+        Track track = favourites.get(position);
 
+        viewHolder.nameTxt.setText(track.getName());
+        viewHolder.artistTxt.setText("Artist: " + track.getArtist_name());
+        viewHolder.albumTxt.setText("Album: " + track.getAlbum_name());
+        Picasso.with(context).load(track.getImage()).into(viewHolder.albumImg);
 
-        nameView.setText(track.getName());
-        artistView.setText("Artist: " + track.getArtist_name());
-        albumView.setText("Album: " + track.getAlbum_name());
-        Picasso.with(context).load(track.getImage()).into(albumImg);
+        return  convertView;
+    }
 
-        return  rowView;
+    private class ViewHolder {
+        final TextView nameTxt;
+        final TextView artistTxt;
+        final TextView albumTxt;
+        final ImageView albumImg;
+        final Button delBtn;
 
+        ViewHolder(View view){
+            nameTxt = view.findViewById(R.id.nameTxt);
+            artistTxt = view.findViewById(R.id.artistTxt);
+            albumTxt = view.findViewById(R.id.albumTxt);
+            albumImg = view.findViewById(R.id.albumImg);
+            delBtn = view.findViewById(R.id.delBtn);
+        }
     }
 
     public interface AdapterCallback {

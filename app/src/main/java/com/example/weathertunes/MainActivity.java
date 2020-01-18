@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
         //Get activity items
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
-        nextBtn = findViewById(R.id.skipBtn);
+        nextBtn = findViewById(R.id.nextBtn);
         nextBtn.setEnabled(false);
         favouritesBtn = findViewById(R.id.favouritesBtn);
         addToFavBtn = findViewById(R.id.addToFavBtn);
@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         double longitude;
         double latitude;
         if(location == null){
-            latitude = 45.3666; //33.74900;
-            longitude = 45.9507;//84.38798;
+            latitude = 34.3666; //33.74900;
+            longitude = 25.9507;//84.38798;
             Toast.makeText(getApplicationContext(), "Couldn't find location! You are now in Atlanta", Toast.LENGTH_SHORT).show();
         }
         else {
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer player) {
-                playingTxt.setText("Now Playing: " + currentTrack.getName());
+                playingTxt.setText(currentTrack.getName());
                 Picasso.with(getApplicationContext()).load(currentTrack.getImage()).into(songImg);
                 pauseBtn.setText("PAUSE");
                 player.start();
