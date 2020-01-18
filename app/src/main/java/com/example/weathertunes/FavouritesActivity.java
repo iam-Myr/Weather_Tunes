@@ -1,8 +1,6 @@
 package com.example.weathertunes;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,12 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import java.io.IOException;
 import java.util.ArrayList;
-
-import static com.example.weathertunes.MainActivity.mediaPlayer;
 
 public class FavouritesActivity extends AppCompatActivity implements FavouritesAdapter.AdapterCallback {
 
@@ -25,7 +18,6 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
     private FavouritesAdapter favAdapter;
     private ArrayList<Track> favourites;
     private ListView favList;
-    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +29,6 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
                 Context.MODE_PRIVATE,
                 null);
 
-        intent = getIntent();
-
-        TextView favouritesTxt = findViewById(R.id.favouritesTxt);
-        //String weather = intent.getStringExtra("weather");
-        //weatherTxt.setText("Current weather: " + weather);
-
         favList = findViewById(R.id.favsList);
         favList.setClickable(true);
         favList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -51,10 +37,9 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
                 Track track = favourites.get(position);
                 Log.d("MYR", "Song is: " + track.toString());
                 Intent request = new Intent(FavouritesActivity.this,MainActivity.class);
-                request.putExtra("url",track.getAudio_url());
+                request.putExtra("track",track);
                 setResult(RESULT_OK, request ); // set your result
                 finish(); // return back to MainActivity
-
             }
         });
     }
@@ -64,14 +49,11 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
         super.onStart();
         this.favourites = getArrayFromDB(this.db);
         loadDataFromArrayL(favourites);
-        Log.d("MYR", "I got: "+intent.getStringExtra("album_img"));
     }
 
     public void loadDataFromArrayL(ArrayList<Track> list){
 
         favAdapter = new FavouritesAdapter(this,list, this);
-
-
         favList.setAdapter(favAdapter);
         favAdapter.notifyDataSetChanged();
     }

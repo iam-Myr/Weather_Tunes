@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
@@ -90,9 +91,11 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         double longitude;
         double latitude;
         if(location == null){
-            latitude = 34.3666; //33.74900;
-            longitude = 25.9507;//84.38798;
-            Toast.makeText(getApplicationContext(), "Couldn't find location! You are now in Atlanta", Toast.LENGTH_SHORT).show();
+            latitude = new Random().nextInt(90 + 90) - 90;
+            longitude = new Random().nextInt(180 + 180) - 180;
+            Log.d("MYR","Coords: " + latitude +" and "+ longitude);
+            Toast.makeText(getApplicationContext(),
+                    "Couldn't find location! You are now in a random place in the world....", Toast.LENGTH_LONG).show();
         }
         else {
             longitude = location.getLongitude();
@@ -214,20 +217,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 }
             }
         });
-
-       /* loopCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mediaPlayer.isPlaying()){
-                    if (loopCheck.isChecked())
-                        mediaPlayer.setLooping(true);
-                    else
-                        mediaPlayer.setLooping(false);
-                }
-            }
-        });
-
-        */
     }
 
 
@@ -245,9 +234,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         if (requestCode == 1){
             if (resultCode == RESULT_OK && data != null){
                 if (MEDIAPLAYER_STARTED){
-                    //currentTrack.setName(data.getStringExtra("name"));
-                    //currentTrack.setImage(data.getStringExtra("image"));
-                    playTrack(data.getStringExtra("url"));
+                    this.currentTrack = data.getParcelableExtra("track");
+                    playTrack(currentTrack.getAudio_url());
                 }
             }
         }
@@ -257,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     public void onWeatherFetchCompleted(String[] result) {
         if(result != null) {
             weather = result;
+            if (weather[0].equals("")) weather[0] = "Sea";
             weatherTxt.setText(weather[0] + " - " + weather[1]);
             WEATHER_FETCHED = true;
         }

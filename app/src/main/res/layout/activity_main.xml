@@ -16,11 +16,11 @@
         android:textColor="#E0F7FA"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
-        app:layout_constraintHorizontal_bias="0.573"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.445"
+        app:layout_constraintStart_toEndOf="@+id/pauseBtn"
         app:layout_constraintTop_toBottomOf="@+id/playingTxt"
-        app:layout_constraintVertical_bias="0.094" />
+        app:layout_constraintVertical_bias="0.091" />
 
     <TextView
         android:id="@+id/playingTxt"
@@ -43,11 +43,11 @@
         android:text="FAV"
         android:textColor="#E0F7FA"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.437"
-        app:layout_constraintStart_toEndOf="@+id/pauseBtn"
+        app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playingTxt"
-        app:layout_constraintVertical_bias="0.095" />
+        app:layout_constraintVertical_bias="0.091" />
 
     <TextView
         android:id="@+id/weatherTxt"
@@ -94,10 +94,10 @@
         android:id="@+id/pauseBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PAUSE"
-        android:textSize="18sp"
         android:background="#009688"
+        android:text="PAUSE"
         android:textColor="#E0F7FA"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

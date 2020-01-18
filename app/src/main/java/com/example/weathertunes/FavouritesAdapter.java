@@ -101,6 +101,4 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
     }
 
 
-
-
 }

@@ -1,6 +1,9 @@
 package com.example.weathertunes;
 
-public class Track {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Track implements Parcelable {
 
     private int id;
     private String name;
@@ -60,19 +63,49 @@ public class Track {
         return audio_url;
     }
 
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String toString(){
         return name +" - "+ audio_url;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeInt(duration);
+        dest.writeInt(artist_id);
+        dest.writeString(artist_name);
+        dest.writeString(album_name);
+        dest.writeInt(album_id);
+        dest.writeString(image);
+        dest.writeString(audio_url);
+    }
+
+    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
+        }
+
+        public Track[] newArray(int size) {
+            return new Track[size];
+        }
+    };
+
+    // example constructor that takes a Parcel and gives you an object populated with it's values
+    private Track(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        duration = in.readInt();
+        artist_id = in.readInt();
+        artist_name = in.readString();
+        album_name = in.readString();
+        album_id = in.readInt();
+        image = in.readString();
+        audio_url = in.readString();
+    }
 }
+
