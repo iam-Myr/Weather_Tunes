@@ -2,6 +2,7 @@ package com.example.weathertunes;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -47,24 +48,15 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesA
         favList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (intent.getBooleanExtra("playerStarted", false)) {
-                    Track track = favourites.get(position);
-                    Log.d("MYR", "Song is: " + track.toString());
-                    mediaPlayer.reset();
-                    try {
-                        mediaPlayer.setDataSource(track.getAudio_url());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    mediaPlayer.prepareAsync();
-                    intent.putExtra("album_img",track.getImage());
-                    intent.putExtra("song_name",track.getName());
-                }
+                Track track = favourites.get(position);
+                Log.d("MYR", "Song is: " + track.toString());
+                Intent request = new Intent(FavouritesActivity.this,MainActivity.class);
+                request.putExtra("url",track.getAudio_url());
+                setResult(RESULT_OK, request ); // set your result
+                finish(); // return back to MainActivity
+
             }
         });
-
-
-
     }
 
     @Override

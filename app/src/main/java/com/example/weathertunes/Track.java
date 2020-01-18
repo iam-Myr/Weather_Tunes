@@ -60,6 +60,18 @@ public class Track {
         return audio_url;
     }
 
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String toString(){
         return name +" - "+ audio_url;
     }
