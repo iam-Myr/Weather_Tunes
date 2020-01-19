@@ -14,6 +14,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -57,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     private TextView weatherTxt;
     private Button pauseBtn;
     private Button nextBtn;
-    private Button favouritesBtn;
     private Button addToFavBtn;
     private TextView playingTxt;
     private ImageView songImg;
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
         nextBtn = findViewById(R.id.nextBtn);
         nextBtn.setEnabled(false);
-        favouritesBtn = findViewById(R.id.favouritesBtn);
         addToFavBtn = findViewById(R.id.addToFavBtn);
         addToFavBtn.setEnabled(false);
         pauseBtn = findViewById(R.id.pauseBtn);
@@ -197,14 +197,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             }
         });
 
-        favouritesBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                intent.putExtra("SONG_REQUESTED", SONG_REQUESTED);
-                startActivityForResult(intent, 1);
-            }
-        });
-
         pauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             }
         });
     }
-
 
     @Override
     protected void onDestroy() {
@@ -242,10 +233,26 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // R.menu.mymenu is a reference to an xml file named mymenu.xml which should be inside your res/menu directory.
+        // If you don't have res/menu, just create a directory named "menu" inside res
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // handle button activities
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        intent.putExtra("SONG_REQUESTED", SONG_REQUESTED);
+        startActivityForResult(intent, 1);
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onWeatherFetchCompleted(String[] result) {
         if(result != null) {
             weather = result;
-            if (weather[0].equals("")) weather[0] = "Sea";
+            if (weather[0].equals("")) weather[0] = "At sea";
             weatherTxt.setText(weather[0] + " - " + weather[1]);
             WEATHER_FETCHED = true;
         }

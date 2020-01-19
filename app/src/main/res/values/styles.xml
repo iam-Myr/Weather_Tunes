@@ -8,4 +8,25 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- NEW STYLE -->
+    <style name="CustomTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/customPrimary</item>
+        <item name="colorPrimaryDark">@color/customPrimaryDark</item>
+        <item name="colorAccent">@color/customAccent</item>
+
+        <item name="android:fontFamily">@font/pixchicago</item>
+        <item name="android:colorBackground">@color/customAccent</item>
+        <item name="android:windowBackground">@drawable/clouds</item>
+        <item name="android:textSize">10dp</item>
+        <item name="android:buttonStyle">@style/CustomButton</item> BUTTON STYLE HERE
+    </style>
+
+    <!-- BUTTON STYLE -->
+    <style name="CustomButton" parent="android:Widget.Material.Button">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_margin">0dip</item>
+        <item name="android:background">@color/customPrimary</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
 </resources>
