@@ -4,8 +4,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,7 +26,6 @@ import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -52,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     private static Track currentTrack;
     private Intent intent;
     private static SQLiteDatabase db;
-    public static MediaPlayer mediaPlayer;
+    private static MediaPlayer mediaPlayer;
+
 
     public static List<String> ClearTags = new ArrayList<>(Arrays.asList("happy", "brazil", "cute", "swing", "upbeat", "guitar", "trumpet"));
     public static List<String> RainTags = new ArrayList<>(Arrays.asList("sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi", "violin", "piano", "romantic"));
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     private Button addToFavBtn;
     private TextView playingTxt;
     private ImageView songImg;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         weatherTxt = findViewById(R.id.weatherTxt);
         playingTxt =  findViewById(R.id.playingTxt);
         songImg = findViewById(R.id.songImg);
+        swipeRefresh = findViewById(R.id.swiperefresh);
 
         intent = new Intent(MainActivity.this,FavouritesActivity.class);
 
@@ -109,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             Toast.makeText(getApplicationContext(),
                     "You must provide permission to access location!", Toast.LENGTH_LONG).show();
         }
+
+
 
         //Create Media player
         mediaPlayer = new MediaPlayer();
@@ -210,6 +214,15 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                     pauseBtn.setText("PAUSE");
                     mediaPlayer.start();
                 }
+            }
+        });
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefresh.setRefreshing(true);
+                getLocation();
+                swipeRefresh.setRefreshing(false);
             }
         });
     }
