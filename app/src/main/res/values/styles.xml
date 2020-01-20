@@ -25,7 +25,7 @@
     <style name="CustomButton" parent="android:Widget.Material.Button">
         <item name="android:textSize">14sp</item>
         <item name="android:layout_margin">0dip</item>
-        <item name="android:background">@color/customPrimary</item>
+        <item name="android:background">@drawable/shadow_button</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
 

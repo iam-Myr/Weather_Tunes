@@ -4,12 +4,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
-import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -22,6 +23,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -39,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
     private static final int REQUEST_CODE_ACCESS_FINE_LOCATION = 1;
     private static boolean ACCESS_FINE_LOCATION_GRANTED = false;
+    private FusedLocationProviderClient fusedLocationClient;
     private static boolean WEATHER_FETCHED = false;
     private static boolean MEDIAPLAYER_STARTED = false;
     private static boolean SONG_REQUESTED = false;
@@ -47,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     private Intent intent;
     private static SQLiteDatabase db;
     public static MediaPlayer mediaPlayer;
-
 
     public static List<String> ClearTags = new ArrayList<>(Arrays.asList("happy", "brazil", "cute", "swing", "upbeat", "guitar", "trumpet"));
     public static List<String> RainTags = new ArrayList<>(Arrays.asList("sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi", "violin", "piano", "romantic"));
@@ -84,32 +89,30 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
         intent = new Intent(MainActivity.this,FavouritesActivity.class);
 
+        //Change image to loading
         songImg.setImageResource(getResources().getIdentifier("drawable/loading", null, this.getPackageName()));
 
-        //Get location
-        Location location =  getLocation();
-        double longitude;
-        double latitude;
-        if(location == null){
-            latitude = new Random().nextInt(90 + 90) - 90;
-            longitude = new Random().nextInt(180 + 180) - 180;
-            Log.d("MYR","Coords: " + latitude +" and "+ longitude);
-            Toast.makeText(getApplicationContext(),
-                    "Couldn't find location! You are now in a random place in the world....", Toast.LENGTH_LONG).show();
+        int hasReadLocationPermission = ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION);
+        Log.d("MYR", "HAS Read Location Permissions "+hasReadLocationPermission);
+
+        if(hasReadLocationPermission == PackageManager.PERMISSION_GRANTED){
+            Log.d("MYR", "Permission Granted");
+            ACCESS_FINE_LOCATION_GRANTED = true;
         }
+        else{
+            Log.d("MYR", "Requesting permission");
+            ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, REQUEST_CODE_ACCESS_FINE_LOCATION);
+        }
+
+        if(ACCESS_FINE_LOCATION_GRANTED) getLocation();
         else {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
+            Toast.makeText(getApplicationContext(),
+                    "You must provide permission to access location!", Toast.LENGTH_LONG).show();
         }
 
         //Create Media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        //Get weather
-        FetchWeatherTask fetchWeather = new FetchWeatherTask(longitude, latitude, this );
-        fetchWeather.execute();
-
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -234,8 +237,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // R.menu.mymenu is a reference to an xml file named mymenu.xml which should be inside your res/menu directory.
-        // If you don't have res/menu, just create a directory named "menu" inside res
         getMenuInflater().inflate(R.menu.mymenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -291,30 +292,30 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
     }
 
-    public Location getLocation() {
-        int hasReadLocationPermission = ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION);
-        Log.d("MYR", "HAS Read Location Permissions " + hasReadLocationPermission);
-
-        if (hasReadLocationPermission == PackageManager.PERMISSION_GRANTED) {
-            Log.d("MYR", "Permission Granted");
-            ACCESS_FINE_LOCATION_GRANTED = true;
-        } else {
-            Log.d("MYR", "Requesting permission");
-            ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, REQUEST_CODE_ACCESS_FINE_LOCATION);
-        }
-
-        if (ACCESS_FINE_LOCATION_GRANTED) {
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                return lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            }
-            else {
-                Toast.makeText(getApplicationContext(), "GPS must be enabled!", Toast.LENGTH_SHORT).show();
-            }
-        }
-        return null;
+    public void getLocation() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        double latitude;
+                        double longitude;
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude =location.getLongitude();
+                        }
+                        else {
+                            latitude = new Random().nextInt(90 + 90) - 90;
+                            longitude = new Random().nextInt(180 + 180) - 180;
+                            Log.d("MYR","Coords: " + latitude +" and "+ longitude);
+                            Toast.makeText(getApplicationContext(),
+                                    "Couldn't find location! You are now in a random place in the world....", Toast.LENGTH_LONG).show();
+                        }
+                        FetchWeatherTask fetchWeather = new FetchWeatherTask(latitude, longitude, MainActivity.this );
+                        fetchWeather.execute();
+                    }
+                });
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -324,9 +325,10 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    // location-related task you need to do.
                     Log.d("MYR", "Permission Granted!");
                     ACCESS_FINE_LOCATION_GRANTED = true;
+                    getLocation();
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -334,9 +336,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 

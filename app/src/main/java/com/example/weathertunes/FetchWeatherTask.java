@@ -17,13 +17,13 @@ import java.net.URL;
 
 public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
-    private String longitude;
     private String latitude;
+    private String longitude;
     private OnTaskCompleted listener;
 
-    public FetchWeatherTask(double longitude, double latitude, OnTaskCompleted listener) {
-        this.longitude = String.valueOf(longitude);
+    public FetchWeatherTask(double latitude, double longitude, OnTaskCompleted listener) {
         this.latitude = String.valueOf(latitude);
+        this.longitude = String.valueOf(longitude);
         this.listener = listener;
     }
 
@@ -57,10 +57,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String forecastJsonStr = null;
-        String weatherFormat = "json";
-        int numDays = 1;
-        String units = "metric";
+        String forecastJsonStr;
 
         try {
             // Construct the URL for the OpenWeatherMap query
