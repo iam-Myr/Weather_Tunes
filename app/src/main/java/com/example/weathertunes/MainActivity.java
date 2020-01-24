@@ -5,11 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -32,7 +33,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -53,13 +56,17 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     private static SQLiteDatabase db;
     private static MediaPlayer mediaPlayer;
 
-
+    //SEVEN WEATHER CONDITIONS: Thunderstorm, Drizzle, Rain, Snow, Atmosphere, Clear, Clouds
     public static List<String> ClearTags = new ArrayList<>(Arrays.asList("happy", "brazil", "cute", "swing", "upbeat", "guitar", "trumpet"));
     public static List<String> RainTags = new ArrayList<>(Arrays.asList("sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi", "violin", "piano", "romantic"));
     public static List<String> CloudsTags = new ArrayList<>(Arrays.asList("sad", "storm", "melancholy", "grey", "lofi", "space", "indie", "ambient", "newage"));
-    public static List<String> MistTags = new ArrayList<>(Arrays.asList("horror", "scary", "dark", "metal", "classic"));
+    public static List<String> AtmosphereTags = new ArrayList<>(Arrays.asList("horror", "scary", "dark", "metal", "classic"));
     public static List<String> SnowTags = new ArrayList<>(Arrays.asList("christmas", "bells", "winter"));
-    public static List<String> FogTags = new ArrayList<>(Arrays.asList("scary"));
+    public static List<String> DrizzleTags = new ArrayList<>(Arrays.asList("scary"));
+    public static List<String> ThunderStormTags = new ArrayList<>(Arrays.asList("scary"));
+
+    Map weatherMap =
+            new HashMap<String,List<String>>();
 
     private TextView weatherTxt;
     private Button pauseBtn;
@@ -75,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         setContentView(R.layout.activity_main);
 
         Log.d("Main Activity", "started successfully");
+
+        makeWeatherMap();// Start by connecting the different weathers to their tags
 
         //Get activity items
         setRequestedOrientation(SCREEN_ORIENTATION_PORTRAIT);
@@ -112,12 +121,29 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                     "You must provide permission to access location!", Toast.LENGTH_LONG).show();
         }
 
+        //Create or open DB
+        db = getBaseContext().openOrCreateDatabase(
+                "favourites-db.db",
+                Context.MODE_PRIVATE,
+                null);
 
+        db.execSQL("CREATE TABLE IF NOT EXISTS \"Favourites\" (\n" +
+                "    \"id\"    INTEGER NOT NULL,\n" +
+                "    \"name\"    TEXT,\n" +
+                "    \"duration\"    INTEGER,\n" +
+                "    \"artist_id\"    NUMERIC,\n" +
+                "    \"artist_name\"    BLOB,\n" +
+                "    \"album_name\"    INTEGER,\n" +
+                "    \"album_id\"    INTEGER,\n" +
+                "    \"album_image\"    TEXT,\n" +
+                "    \"audio_url\"    TEXT NOT NULL,\n" +
+                "    PRIMARY KEY(\"id\")\n" +
+                ");");
 
         //Create Media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
+        //Media Player Listeners
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -152,26 +178,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             }
         });
 
-        //Create or open DB
-        db = getBaseContext().openOrCreateDatabase(
-                "favourites-db.db",
-                Context.MODE_PRIVATE,
-                null);
-
-        db.execSQL("CREATE TABLE IF NOT EXISTS \"Favourites\" (\n" +
-                "    \"id\"    INTEGER NOT NULL,\n" +
-                "    \"name\"    TEXT,\n" +
-                "    \"duration\"    INTEGER,\n" +
-                "    \"artist_id\"    NUMERIC,\n" +
-                "    \"artist_name\"    BLOB,\n" +
-                "    \"album_name\"    INTEGER,\n" +
-                "    \"album_id\"    INTEGER,\n" +
-                "    \"album_image\"    TEXT,\n" +
-                "    \"audio_url\"    TEXT NOT NULL,\n" +
-                "    PRIMARY KEY(\"id\")\n" +
-                ");");
-
-
+        //Button Listeners
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         addToFavBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Add track to DB
                 if (currentTrack != null){
                     int id = currentTrack.getId();
                     String name = currentTrack.getName();
@@ -235,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         finishAndRemoveTask();
     }
 
-    @Override
+    @Override //Gets track selected from Favourites Activity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1){
@@ -254,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         return super.onCreateOptionsMenu(menu);
     }
 
-    // handle button activities
+    //Handle the menu button activities
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         intent.putExtra("SONG_REQUESTED", SONG_REQUESTED);
@@ -266,16 +274,44 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     public void onWeatherFetchCompleted(String[] result) {
         if(result != null) {
             weather = result;
-            if (weather[0].equals("")) weather[0] = "At sea";
+            if (weather[0].equals("")) weather[0] = "At sea"; //Sometimes the city name isn't available, the location is at sea
             weatherTxt.setText(weather[0] + " - " + weather[1]);
             WEATHER_FETCHED = true;
+            setBackground(weather[1]);
+            fetchTrack(weather[1]); //Try to fetch a track
         }
         else {
             Toast.makeText(getApplicationContext(), "Couldn't find weather", Toast.LENGTH_SHORT).show();
         }
+    }
 
-        if(WEATHER_FETCHED) {
-            fetchTrack(weather[1]);
+    public void setBackground(String weather){
+        switch(weather){
+            case "Clear":
+                getWindow().setBackgroundDrawableResource(R.drawable.clear);
+                break;
+            case "Rain":
+                getWindow().setBackgroundDrawableResource(R.drawable.rain);
+                playingTxt.setTextColor(Color.WHITE);
+                break;
+            case "Snow":
+                getWindow().setBackgroundDrawableResource(R.drawable.snow);
+                break;
+            case "Drizzle":
+                getWindow().setBackgroundDrawableResource(R.drawable.drizzle);
+                break;
+            case "Clouds":
+                getWindow().setBackgroundDrawableResource(R.drawable.clouds);
+                playingTxt.setTextColor(Color.BLACK);
+                break;
+            case "Thunderstorm":
+                getWindow().setBackgroundDrawableResource(R.drawable.thunderstorm);
+                playingTxt.setTextColor(Color.WHITE);
+                break;
+                default:
+                    getWindow().setBackgroundDrawableResource(R.drawable.atmosphere);
+                    break;
+
         }
     }
 
@@ -286,7 +322,8 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 playTrack(currentTrack.getAudio_url());
             }
             else {
-                Toast.makeText(getApplicationContext(), "Couldn't fetch song", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Couldn't find song", Toast.LENGTH_SHORT).show();
+                //Enable the buttons since track isn't getting fetched anymore
                 pauseBtn.setEnabled(true);
                 nextBtn.setEnabled(true);
                 addToFavBtn.setEnabled(true);
@@ -337,14 +374,10 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
                     Log.d("MYR", "Permission Granted!");
                     ACCESS_FINE_LOCATION_GRANTED = true;
                     getLocation();
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                     Log.d("MYR", "Permission refused");
                 }
                 return;
@@ -353,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     }
 
     public void fetchTrack(String weather){
-
+        //Disable buttons while song is getting fetched
         pauseBtn.setEnabled(false);
         nextBtn.setEnabled(false);
         addToFavBtn.setEnabled(false);
@@ -364,32 +397,29 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         fetchTrack.execute();
     }
 
+    public void makeWeatherMap(){
+        //As seen in https://openweathermap.org/weather-conditions
+        weatherMap.put("Thunderstorm",ThunderStormTags);
+        weatherMap.put("Drizzle", DrizzleTags);
+        weatherMap.put("Rain", RainTags);
+        weatherMap.put("Snow", SnowTags);
+        weatherMap.put("Fog", AtmosphereTags);
+        weatherMap.put("Mist", AtmosphereTags);
+        weatherMap.put("Smoke", AtmosphereTags);
+        weatherMap.put("Haze", AtmosphereTags);
+        weatherMap.put("Dust", AtmosphereTags);
+        weatherMap.put("Sand", AtmosphereTags);
+        weatherMap.put("Ash", AtmosphereTags);
+        weatherMap.put("Squall", AtmosphereTags);
+        weatherMap.put("Tornado", AtmosphereTags);
+        weatherMap.put("Clear", ClearTags);
+        weatherMap.put("Clouds", CloudsTags);
+    }
+
     public String generateTag(String weather){ //THE SAUCE
-        List<String> tagList;
-
-        switch (weather) {
-            case "Clear":
-                tagList = ClearTags;
-                break;
-            case "Clouds":
-                tagList = CloudsTags;
-                break;
-            case "Rain":
-                tagList = RainTags;
-                break;
-            case "Snow":
-                tagList = SnowTags;
-                break;
-            case "Mist":
-                tagList = MistTags;
-                break;
-            case "Fog":
-                tagList = FogTags;
-                break;
-            default:
-                return "song";
-
-        }
+        List<String> tagList = (List) weatherMap.get(weather);
+        if (tagList==null)
+            return "song";
         Collections.shuffle(tagList);
         Log.d("MYR","TAG: " +tagList.get(0)+"+"+tagList.get(1)+"+"+ tagList.get(2));
         return tagList.get(0)+"+"+tagList.get(1)+"+"+ tagList.get(2);

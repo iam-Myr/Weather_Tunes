@@ -58,7 +58,7 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
             public void onClick(View view) {
                 Log.d("MYR", "DEL WAS PRESSED");
                 final View fview = view;
-                new AlertDialog.Builder(context)
+                new AlertDialog.Builder(context, R.style.AlertDialogCustom)
                         .setTitle("Confirmation")
                         .setMessage("Are you sure you want to delete?")
                         .setIcon(android.R.drawable.ic_dialog_alert)

@@ -24,6 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:textAlignment="center"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +35,7 @@
         android:id="@+id/addToFavBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="FAV"
+        android:text="LIKE"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/pauseBtn"
         app:layout_constraintHorizontal_bias="0.52"
@@ -53,12 +55,14 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="No weather" />
 
     <ImageView
         android:id="@+id/songImg"
         android:layout_width="186dp"
-        android:layout_height="174dp"
+        android:layout_height="186dp"
+        android:background="@drawable/image_border"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -72,7 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PAUSE"
-        android:textSize="18sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
