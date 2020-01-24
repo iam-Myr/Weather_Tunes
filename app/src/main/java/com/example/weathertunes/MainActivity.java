@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -60,13 +59,12 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
     public static List<String> ClearTags = new ArrayList<>(Arrays.asList("happy", "brazil", "cute", "swing", "upbeat", "guitar", "trumpet"));
     public static List<String> RainTags = new ArrayList<>(Arrays.asList("sad", "cafe", "jazz", "funk", "ballad", "tango", "lofi", "violin", "piano", "romantic"));
     public static List<String> CloudsTags = new ArrayList<>(Arrays.asList("sad", "storm", "melancholy", "grey", "lofi", "space", "indie", "ambient", "newage"));
-    public static List<String> AtmosphereTags = new ArrayList<>(Arrays.asList("horror", "scary", "dark", "metal", "classic"));
-    public static List<String> SnowTags = new ArrayList<>(Arrays.asList("christmas", "bells", "winter"));
-    public static List<String> DrizzleTags = new ArrayList<>(Arrays.asList("scary"));
-    public static List<String> ThunderStormTags = new ArrayList<>(Arrays.asList("scary"));
+    public static List<String> AtmosphereTags = new ArrayList<>(Arrays.asList("horror", "scary", "gore", "piano", "violin", "halloween", "ghost", "boo"));
+    public static List<String> SnowTags = new ArrayList<>(Arrays.asList("christmas", "bells", "winter", "jingle", "santa", "candycane"));
+    public static List<String> DrizzleTags = new ArrayList<>(Arrays.asList("soft", "lofi", "quiet", "chillstep", "meditate", "chill", "calm"));
+    public static List<String> ThunderStormTags = new ArrayList<>(Arrays.asList("metal", "doom", "drums", "bass", "screamo", "gothic"));
 
-    Map weatherMap =
-            new HashMap<String,List<String>>();
+    Map weatherMap = new HashMap<String,List<String>>();
 
     private TextView weatherTxt;
     private Button pauseBtn;
@@ -116,10 +114,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         }
 
         if(ACCESS_FINE_LOCATION_GRANTED) getLocation();
-        else {
-            Toast.makeText(getApplicationContext(),
-                    "You must provide permission to access location!", Toast.LENGTH_LONG).show();
-        }
 
         //Create or open DB
         db = getBaseContext().openOrCreateDatabase(
@@ -143,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         //Create Media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
         //Media Player Listeners
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -196,11 +191,11 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 //Add track to DB
                 if (currentTrack != null){
                     int id = currentTrack.getId();
-                    String name = currentTrack.getName();
+                    String name = currentTrack.getName().replace("'", "`");
                     int duration = currentTrack.getDuration();
                     int artist_id = currentTrack.getArtist_id();
-                    String artist_name = currentTrack.getArtist_name();
-                    String album_name = currentTrack.getAlbum_name();
+                    String artist_name = currentTrack.getArtist_name().replace("'", "`");
+                    String album_name = currentTrack.getAlbum_name().replace("'", "`");
                     int album_id = currentTrack.getAlbum_id();
                     String album_image = currentTrack.getImage();
                     String audio_url = currentTrack.getAudio_url();
@@ -243,6 +238,67 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
         finishAndRemoveTask();
     }
 
+    public void getLocation() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        double latitude;
+                        double longitude;
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude =location.getLongitude();
+                        }
+                        else {
+                            latitude = new Random().nextInt(90 + 90) - 90;
+                            longitude = new Random().nextInt(180 + 180) - 180;
+
+                            Toast.makeText(getApplicationContext(),
+                                    "Couldn't find location! You are now in a random place in the world....", Toast.LENGTH_LONG).show();
+                        }
+                        Log.d("MYR","Coords: " + latitude +" and "+ longitude);
+                        FetchWeatherTask fetchWeather = new FetchWeatherTask(latitude, longitude, MainActivity.this );
+                        fetchWeather.execute();
+                    }
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("MYR", "Permission Granted!");
+                    ACCESS_FINE_LOCATION_GRANTED = true;
+                    getLocation();//get location if permission is granted
+                } else {
+                    Log.d("MYR", "Permission refused");
+                    Toast.makeText(getApplicationContext(),
+                            "You must provide permission to access location!", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    //Handle the menu button activities
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        intent.putExtra("SONG_REQUESTED", SONG_REQUESTED);
+        startActivityForResult(intent, 1);
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override //Gets track selected from Favourites Activity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -250,24 +306,10 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
             if (resultCode == RESULT_OK && data != null){
                 if (MEDIAPLAYER_STARTED){
                     this.currentTrack = data.getParcelableExtra("track");
-                    playTrack(currentTrack.getAudio_url());
+                    playTrack(currentTrack);
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.mymenu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    //Handle the menu button activities
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        intent.putExtra("SONG_REQUESTED", SONG_REQUESTED);
-        startActivityForResult(intent, 1);
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -296,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 break;
             case "Snow":
                 getWindow().setBackgroundDrawableResource(R.drawable.snow);
+                playingTxt.setTextColor(Color.BLACK);
                 break;
             case "Drizzle":
                 getWindow().setBackgroundDrawableResource(R.drawable.drizzle);
@@ -311,77 +354,6 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
                 default:
                     getWindow().setBackgroundDrawableResource(R.drawable.atmosphere);
                     break;
-
-        }
-    }
-
-    @Override
-    public void onTrackFetchCompleted(Track result) {
-        currentTrack = result;
-            if (currentTrack != null) {
-                playTrack(currentTrack.getAudio_url());
-            }
-            else {
-                Toast.makeText(getApplicationContext(), "Couldn't find song", Toast.LENGTH_SHORT).show();
-                //Enable the buttons since track isn't getting fetched anymore
-                pauseBtn.setEnabled(true);
-                nextBtn.setEnabled(true);
-                addToFavBtn.setEnabled(true);
-                playingTxt.setText("");
-            }
-    }
-
-    public void playTrack(String url) {
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(url);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mediaPlayer.prepareAsync();
-
-    }
-
-    public void getLocation() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        double latitude;
-                        double longitude;
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude =location.getLongitude();
-                        }
-                        else {
-                            latitude = new Random().nextInt(90 + 90) - 90;
-                            longitude = new Random().nextInt(180 + 180) - 180;
-                            Log.d("MYR","Coords: " + latitude +" and "+ longitude);
-                            Toast.makeText(getApplicationContext(),
-                                    "Couldn't find location! You are now in a random place in the world....", Toast.LENGTH_LONG).show();
-                        }
-                        FetchWeatherTask fetchWeather = new FetchWeatherTask(latitude, longitude, MainActivity.this );
-                        fetchWeather.execute();
-                    }
-                });
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("MYR", "Permission Granted!");
-                    ACCESS_FINE_LOCATION_GRANTED = true;
-                    getLocation();
-                } else {
-                    Log.d("MYR", "Permission refused");
-                }
-                return;
-            }
         }
     }
 
@@ -395,6 +367,32 @@ public class MainActivity extends AppCompatActivity implements FetchWeatherTask.
 
         FetchTrackTask fetchTrack = new FetchTrackTask(tag, this);
         fetchTrack.execute();
+    }
+
+    @Override
+    public void onTrackFetchCompleted(Track result) {
+        currentTrack = result;
+            if (currentTrack != null) {
+                playTrack(currentTrack);
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "Couldn't find song", Toast.LENGTH_SHORT).show();
+                //Enable the buttons since track isn't getting fetched anymore
+                pauseBtn.setEnabled(true);
+                nextBtn.setEnabled(true);
+                addToFavBtn.setEnabled(true);
+                playingTxt.setText("");
+            }
+    }
+
+    public void playTrack(Track track) {
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(track.getAudio_url());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mediaPlayer.prepareAsync();
     }
 
     public void makeWeatherMap(){

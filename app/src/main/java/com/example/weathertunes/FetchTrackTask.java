@@ -19,7 +19,7 @@ import java.util.Random;
 
 public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
-    String fuzzytags;
+    private String fuzzytags;
     private OnTaskCompleted listener;
 
     public FetchTrackTask(String fuzzytags, OnTaskCompleted listener) {
@@ -36,8 +36,6 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
         JSONObject trackJson = new JSONObject(trackJsonStr);
         JSONArray trackArray = trackJson.getJSONArray("results");
-
-        Random rand = new Random();
         JSONObject aTrack = trackArray.getJSONObject(0);
 
         int id = Integer.parseInt(aTrack.getString("id"));

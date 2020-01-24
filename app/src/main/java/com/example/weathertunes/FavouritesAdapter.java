@@ -49,10 +49,6 @@ public class FavouritesAdapter extends ArrayAdapter<Track> {
         }
 
 
-
-
-
-
         viewHolder.delBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

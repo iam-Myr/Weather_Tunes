@@ -1,8 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/mybutton"
+        android:id="@+id/favouritesBtn"
         android:title="FAVOURITES"
-        app:showAsAction="always"
-        />
+        app:showAsAction="always" />
 </menu>
