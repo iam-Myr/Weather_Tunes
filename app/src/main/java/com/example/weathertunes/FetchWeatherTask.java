@@ -20,6 +20,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
     private String latitude;
     private String longitude;
     private OnTaskCompleted listener;
+    private static final String API_KEY = BuildConfig.WEATHER_SUPER_KEY;
 
     public FetchWeatherTask(double latitude, double longitude, OnTaskCompleted listener) {
         this.latitude = String.valueOf(latitude);
@@ -63,7 +64,6 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             // Construct the URL for the OpenWeatherMap query
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
-            //MODIFIED FOR CITY OF THESSALONIKI, GREECE
             final String baseUrl = "https://api.openweathermap.org/data/2.5/weather?";
             //"lat=35&lon=139";
             final String latitudeParam = "lat";
@@ -73,7 +73,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             Uri builtUri = Uri.parse(baseUrl).buildUpon()
                     .appendQueryParameter(latitudeParam, latitude)
                     .appendQueryParameter(longitudeParam,longitude)
-                    .appendQueryParameter(apiKeyParam, "040416fa50c8a477e42af9c9f7b6bf5f")
+                    .appendQueryParameter(apiKeyParam, API_KEY)
                     .build();
 
             URL url = new URL(builtUri.toString());

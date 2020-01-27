@@ -11,11 +11,17 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
         }
+    }
+    buildTypes.each {
+        it.buildConfigField 'String', 'WEATHER_SUPER_KEY', MySuperWeatherKey
+        it.buildConfigField 'String', 'TRACK_SUPER_KEY', MySuperTrackKey
     }
 }
 

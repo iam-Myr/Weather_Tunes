@@ -21,6 +21,8 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
 
     private String fuzzytags;
     private OnTaskCompleted listener;
+    private static final String API_KEY = BuildConfig.TRACK_SUPER_KEY;
+
 
     public FetchTrackTask(String fuzzytags, OnTaskCompleted listener) {
         this.fuzzytags = fuzzytags;
@@ -78,7 +80,7 @@ public class FetchTrackTask extends AsyncTask<String, Void, Track> {
             final String fuzzytagsParam = "fuzzytags";
 
             Uri builtUri = Uri.parse(baseUrl).buildUpon()
-                    .appendQueryParameter(apiKeyParam, "63258834")
+                    .appendQueryParameter(apiKeyParam, API_KEY)
                     .appendQueryParameter(formatParam, "json")
                     .appendQueryParameter(offsetParam, String.valueOf(new Random().nextInt(20)))
                     .appendQueryParameter(limitParam, "1")
